@@ -105,42 +105,43 @@ bash download.sh
 from lmdeploy import pipeline, PytorchEngineConfig, GenerationConfig
 from transformers import AutoTokenizer
 
-model_path = "OpenMOSS-Team/DiRL-8B-Instruct"
+if __name__ == '__main__':
+  model_path = "OpenMOSS-Team/DiRL-8B-Instruct"
 
-# Load tokenizer
-tokenizer = AutoTokenizer.from_pretrained(model_path)
+  # Load tokenizer
+  tokenizer = AutoTokenizer.from_pretrained(model_path)
 
-# Prepare prompts
-prompts = [
-    [{"role": "user", "content": "Solve: If x + 5 = 12, what is x?"}],
-]
-prompts = tokenizer.apply_chat_template(prompts, tokenize=False, add_generation_prompt=True)
+  # Prepare prompts
+  prompts = [
+      [{"role": "user", "content": "Solve: If x + 5 = 12, what is x?"}],
+  ]
+  prompts = tokenizer.apply_chat_template(prompts, tokenize=False, add_generation_prompt=True)
 
-# Configure backend for DLLM inference
-backend_config = PytorchEngineConfig(
-    dtype="float16",
-    max_prefill_token_num=8192,
-    cache_max_entry_count=0.8,
-    dllm_block_length=4,
-    dllm_denoising_steps=4,
-    dllm_unmasking_strategy="low_confidence_dynamic",
-    dllm_confidence_threshold=0.9,
-)
+  # Configure backend for DLLM inference
+  backend_config = PytorchEngineConfig(
+      dtype="float16",
+      max_prefill_token_num=8192,
+      cache_max_entry_count=0.8,
+      dllm_block_length=4,
+      dllm_denoising_steps=4,
+      dllm_unmasking_strategy="low_confidence_dynamic",
+      dllm_confidence_threshold=0.9,
+  )
 
-# Create inference pipeline
-with pipeline(model_path, backend_config=backend_config) as pipe:
-    gen_config = GenerationConfig(
-        top_p=1.0,
-        top_k=50,
-        temperature=1.0,
-        do_sample=False,  # greedy decoding
-        max_new_tokens=8192,
-    )
-    
-    outputs = pipe(prompts, gen_config=gen_config)
-    
-    for output in outputs:
-        print(output.text)
+  # Create inference pipeline
+  with pipeline(model_path, backend_config=backend_config) as pipe:
+      gen_config = GenerationConfig(
+          top_p=1.0,
+          top_k=50,
+          temperature=1.0,
+          do_sample=False,  # greedy decoding
+          max_new_tokens=8192,
+      )
+      
+      outputs = pipe(prompts, gen_config=gen_config)
+      
+      for output in outputs:
+          print(output.text)
 ```
 
 ### Evaluation
