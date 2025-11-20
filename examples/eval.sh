@@ -1,0 +1,1 @@
+export MODEL_PATH=xxx/SDAR-8B-Chat; for dataset in MATH500 GSM8K AIME2024 AIME2025 OlympiadBench; do export EVAL_DATASET=$dataset; bash scripts/eval.sh; done
