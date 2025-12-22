@@ -1,19 +1,6 @@
 {
-  "glm_s1k": {
-    "file_name": "glm_s1k.json",
-    "formatting": "sharegpt",
-    "columns": {
-      "messages": "messages"
-    },
-    "tags": {
-      "role_tag": "role",
-      "content_tag": "content",
-      "user_tag": "user",
-      "assistant_tag": "assistant"
-    }
-  },
   "glm_openr1math": {
-    "file_name": "glm_openr1math-sharegpt.json",
+    "file_name": "glm_openr1math.json",
     "formatting": "sharegpt",
     "columns": {
       "messages": "messages"

@@ -58,7 +58,7 @@ We introduce **DiRL**, an open-source training framework for Diffusion Language 
 
 - **🎯 Novel RL Algorithm:** We propose **DiPO (Discrete Diffusion Policy Optimization)**, an RL algorithm that optimizes at the generation step level for DLLMs. It achieves unbiased implementation with complete consistency between optimization objectives and training process, and integrates dynamic sampling from DAPO during rollout to filter out low-quality data.
 
-- **🚀 Efficient Training & Inference:** We support **Accelerate** framework for distributed training and **LMDeploy** inference engine for efficient rollout, while integrate **Speed Reward** mechanism to optimize inference speed at the training level, enabling both faster training and generation without sacrificing quality.
+- **🚀 Efficient Training & Inference:** We support **Accelerate** framework for distributed training and **FlexAttention** for training acceleration, while implementing **LMDeploy-based inference server** for efficient rollout with **online policy updates**, ensuring training-inference consistency without offline model reloading.
 
 - **🧠 SOTA Performance:** We achieve state-of-the-art results at the 8B scale among both autoregressive (AR) models and diffusion language models (DLLMs) across multiple mathematical reasoning benchmarks. Specifically, we reach **83.05%** on MATH500, **20.63%** on AIME2024, and **20.83%** on AIME2025, surpassing all 8B baselines and even outperforming the 32B Qwen2.5-32B-Instruct model on AIME benchmarks.
 
@@ -149,16 +149,18 @@ if __name__ == '__main__':
 To evaluate models on multiple benchmarks (MATH500, GSM8K, AIME2024, AIME2025, OlympiadBench):
 
 ```bash
-bash examples/eval.sh
+bash examples/example-eval.sh
 ```
 
 ### Training
 
 **Step 1: Prepare Training Data**
 
-While the full DiRL-8B-Instruct training data is not yet released, we provide lightweight datasets for quick experimentation:
+We have released our 2K SFT dataset - [GLM4.6-OpenR1Math-SFT](https://huggingface.co/datasets/Auraithm/GLM4.6-OpenR1Math-SFT), sampled from OpenR1Math and distilled from **GLM-4.6**. We use the BigMath dataset - [BigMATH-RL](https://huggingface.co/datasets/Auraithm/BigMath-RL) for RL training.
+
+Furthermore, we provide lightweight datasets for quick experimentation:
 - [Light-OpenR1Math-SFT](https://huggingface.co/datasets/Auraithm/Light-OpenR1Math-SFT): 2K SFT samples from OpenR1Math
-- [Light-MATH-RL](https://huggingface.co/datasets/Auraithm/Light-MATH-RL): 4K RL samples from MATH
+- [Light-MATH-RL](https://huggingface.co/datasets/Auraithm/Light-MATH-RL): 4K RL samples from MATH.
 
 > **Tip:** For initial experimentation, we recommend starting with **max_new_tokens** of 2K to reduce training time and resource requirements.
 
@@ -168,11 +170,21 @@ SFT training data format:
 ```json
 [
   {
-    "prompt": "<|im_start|>user\n[question]<|im_end|>\n<|im_start|>assistant\n",
-    "response": "[answer]<|im_end|><|endoftext|>"
+    "messages": [
+      {
+        "role": "user",
+        "content": "[question]"
+      },
+      {
+        "role": "assistant",
+        "content": "[answer]"
+      }
+    ],
   }
 ]
 ```
+
+After creating your dataset, add the dataset information to `llama_factory_sdar/data/dataset_info.json`.
 
 RL training data format:
 ```json
@@ -188,10 +200,10 @@ RL training data format:
 
 **Stage 1: SFT Training**
 
-Supervised fine-tuning with random-masking strategy to adapt the base model for mathematical reasoning tasks.
+We use **LLaMA-Factory** to support SFT training with random-masking strategy to adapt the base model for mathematical reasoning tasks.
 
 ```bash
-bash examples/sft.sh
+bash examples/example-sft.sh
 ```
 
 **Stage 2: RL Training**
@@ -199,14 +211,19 @@ bash examples/sft.sh
 Reinforcement learning with DiPO algorithm to optimize the model at generation step level.
 
 ```bash
-bash examples/rl.sh
+bash examples/example-grpo.sh
+```
+For DAPO
+```bash
+bash examples/example-grpo.sh
 ```
 
 ## 📋 Roadmap
 
 - [x] Release Inference Engine and Training Framework
-- [ ] Release DiRL Technical Report
-- [ ] Release Training Data of DiRL-8B-Instruct
+- [x] Release DiRL Technical Report
+- [x] Release Training Data of DiRL-8B-Instruct
+- [x] Support Flex-Attention
 - [ ] Release Thinking Model
 - [ ] Support More RL Algorithms
 - [ ] More Features are working in progress
