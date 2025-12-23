@@ -198,6 +198,11 @@ RL training data format:
 
 **Step 2: Two-Stage Training**
 
+> **Before training**, if your base model is SDAR (e.g., SDAR-8B-Chat), you must add/replace the following two files in your model directory with the custom versions from `models/sdar/`:
+> - `modeling_sdar.py`
+> - `fused_linear_diffusion_cross_entropy.py`
+
+
 **Stage 1: SFT Training**
 
 We use **LLaMA-Factory** to support SFT training with random-masking strategy to adapt the base model for mathematical reasoning tasks.
