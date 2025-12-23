@@ -20,6 +20,10 @@ mv GSM8K/GSM8K.json ./
 mv OlympiadBench/OlympiadBench.json ./
 
 # Download training datasets
+./hfd.sh Auraithm/GLM4.6-OpenR1Math-SFT --dataset --tool aria2c -x 10 --hf_token $HF_TOKEN --hf_username $HF_USERNAME
+mv GLM4.6-OpenR1Math-SFT/GLM4.6-OpenR1Math-SFT.json ./
+./hfd.sh Auraithm/BigMath-RL --dataset --tool aria2c -x 10 --hf_token $HF_TOKEN --hf_username $HF_USERNAME
+mv BigMath-RL/BigMath-RL.json ./
 ./hfd.sh Auraithm/Light-OpenR1Math-SFT --dataset --tool aria2c -x 10 --hf_token $HF_TOKEN --hf_username $HF_USERNAME
 mv Light-OpenR1Math-SFT/Light-OpenR1Math-SFT.json ./
 ./hfd.sh Auraithm/Light-MATH-RL --dataset --tool aria2c -x 10 --hf_token $HF_TOKEN --hf_username $HF_USERNAME

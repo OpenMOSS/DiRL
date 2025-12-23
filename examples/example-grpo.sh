@@ -1,13 +1,13 @@
 # cd xxx/DiRL
 export MODEL=sdar
-export DATASET=xxx
+export DATASET=BigMath_train
 export TRAIN_DATASET=MATH_train
 export EVAL_DATASET=MATH500
 export SCRIPT_NAME=xxx
 export PRETRAINED_MODEL=xxx/SDAR-8B-Chat
 export CURRENT_EPOCH=1
 export CUSOR=0
-export NUM_TASK_PER_STEP=256
+export NUM_TASK_PER_STEP=128
 export NUM_RESPONSE_PER_TASK=8
 export SHRINK=1
 export BS=1

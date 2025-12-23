@@ -44,7 +44,7 @@ THINK=${THINK:-False}
 export PYTHONDONTWRITEBYTECODE=1
 export TRANSFORMERS_OFFLINE=1
 export HF_HUB_OFFLINE=1
-export HF_HOME=/inspire/hdd/global_user/liuxiaoran-240108120089/zhuying/cache/${SCRIPT_NAME}
+export HF_HOME=xxx/cache/${SCRIPT_NAME}
 
 
 echo "[NUM NODES: $NUM_MACHINES] Eval start ..."
