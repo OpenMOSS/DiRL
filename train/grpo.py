@@ -268,7 +268,7 @@ def train():
 
     backend_config = PytorchEngineConfig(
         dtype="auto",  # 自动从模型config读取，与训练保持一致
-        cache_max_entry_count=0.9,
+        cache_max_entry_count=0.8,
         dllm_block_length=config.rollout.block_size,
         dllm_denoising_steps=config.rollout.denoising_steps_per_block,
         dllm_unmasking_strategy=config.rollout.remasking_strategy,
