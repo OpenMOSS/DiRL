@@ -24,12 +24,9 @@
 </div>
 
 <p align="center">
-  <!-- <a href="https://arxiv.org/abs/YOUR_PAPER_ID">
-    <img src="https://img.shields.io/badge/arXiv-2501.XXXXX-b31b1b.svg" alt="Paper on arXiv"/>
-  </a>
-  <a href="https://arxiv.org/pdf/YOUR_PAPER_ID.pdf">
+  <a href="paper/DiRL.pdf">
     <img src="https://img.shields.io/badge/Paper-PDF-red.svg" alt="PDF"/>
-  </a> -->
+  </a>
   <a href="https://github.com/OpenMOSS/DiRL">
     <img src="https://img.shields.io/badge/GitHub-Code-black.svg?logo=github" alt="GitHub Code"/>
   </a>
