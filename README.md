@@ -55,9 +55,15 @@ We introduce **DiRL**, an open-source training framework for Diffusion Language 
 
 - **🎯 Novel RL Algorithm:** We propose **DiPO (Discrete Diffusion Policy Optimization)**, an RL algorithm that optimizes at the generation step level for DLLMs. It achieves unbiased implementation with complete consistency between optimization objectives and training process, and integrates dynamic sampling from DAPO during rollout to filter out low-quality data.
 
-- **🚀 Efficient Training & Inference:** We support **Accelerate** framework for distributed training and **FlexAttention** for training acceleration, while implementing **LMDeploy-based inference server** for efficient rollout with **online policy updates**, ensuring training-inference consistency without offline model reloading.
+- **🚀 Efficient Training & Inference:** We support **Accelerate** framework for distributed training and **Flex-Attention** for training acceleration, while implementing **LMDeploy-based inference server** for efficient rollout with **online policy updates**, ensuring training-inference consistency without offline model reloading.
 
 - **🧠 SOTA Performance:** We achieve state-of-the-art results at the 8B scale among both autoregressive (AR) models and diffusion language models (DLLMs) across multiple mathematical reasoning benchmarks. Specifically, we reach **83.05%** on MATH500, **20.63%** on AIME2024, and **20.83%** on AIME2025, surpassing all 8B baselines and even outperforming the 32B Qwen2.5-32B-Instruct model on AIME benchmarks.
+
+## 📰 News
+
+- **[2025.12]** 🚀 Major framework update! We now support **Flex-Attention** for faster training, **LMDeploy API server** and **real-time policy updates** to enable **online RL**, and support **DAPO algorithm**. We also release the [technical report](paper/DiRL.pdf) and [training datasets](https://huggingface.co/collections/Auraithm/dirl).
+
+- **[2025.11]** 🎉 We release **DiRL**, an open-source post-training framework for Diffusion Language Models! Using this framework, we train **DiRL-8B-Instruct**, which achieves **state-of-the-art** results among 8B models. Released [code](https://github.com/OpenMOSS/DiRL) and [model](https://huggingface.co/OpenMOSS-Team/DiRL-8B-Instruct).
 
 ## 🧠 Method
 
@@ -234,7 +240,7 @@ bash examples/example-grpo.sh
 
 ## 👏 Acknowledgement
 
-We would like to express our gratitude to the following works ([LLaDA](https://github.com/ML-GSAI/LLaDA),[SDAR](https://github.com/JetAstra/SDAR), [dllm-RL](https://github.com/Gen-Verse/dLLM-RL), [lmdeploy](https://github.com/InternLM/lmdeploy),[LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory)) for providing important theoretical foundations and inspiration for DiRL.
+We would like to express our gratitude to the following works ([LLaDA](https://github.com/ML-GSAI/LLaDA), [SDAR](https://github.com/JetAstra/SDAR), [dllm-RL](https://github.com/Gen-Verse/dLLM-RL), [lmdeploy](https://github.com/InternLM/lmdeploy), [LLaMA-Factory](https://github.com/hiyouga/LLaMA-Factory), [Flex-Attention](https://pytorch.org/blog/flexattention/)) for providing important theoretical foundations and inspiration for DiRL.
 
 ## 💬 Community
 
