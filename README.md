@@ -27,9 +27,6 @@
   <a href="https://arxiv.org/abs/2512.22234">
     <img src="https://img.shields.io/badge/arXiv-2512.22234-b31b1b.svg" alt="Paper on arXiv"/>
   </a>
-  <a href="https://arxiv.org/pdf/2512.22234.pdf">
-    <img src="https://img.shields.io/badge/Paper-PDF-red.svg" alt="PDF"/>
-  </a>
   <a href="https://github.com/OpenMOSS/DiRL">
     <img src="https://img.shields.io/badge/GitHub-Code-black.svg?logo=github" alt="GitHub Code"/>
   </a>
