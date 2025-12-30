@@ -95,6 +95,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7 accelerate launch \
   models.pretrained_model=${PRETRAINED_MODEL} \
   experiment.current_step=${CURRENT_STEP} \
   training.num_train_steps=${NUM_TRAIN_STEPS} \
+  training.block_size=${BLOCK_SIZE} \
   training.batch_size_lm=${BS} \
   training.mini_batch_size=${MINI_BS} \
   training.num_iterations=${ITERATIONS} \
