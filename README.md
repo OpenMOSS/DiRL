@@ -87,8 +87,9 @@ cd DiRL
 # Install with pip
 pip install -e .
 # Or install with uv
-uv sync
-source .venv/bin/activate
+uv venv dirl-env
+source dirl-env/bin/activate
+uv sync --active
 ```
 
 If `flash-attn` installation fails, you can download the pre-built wheel file and install it manually:
