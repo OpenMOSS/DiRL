@@ -45,8 +45,8 @@ from transformers.modeling_rope_utils import ROPE_INIT_FUNCTIONS, dynamic_rope_u
 from transformers.modeling_utils import ALL_ATTENTION_FUNCTIONS, PreTrainedModel
 from transformers.processing_utils import Unpack
 from transformers.utils import LossKwargs, auto_docstring, can_return_tuple, is_torch_flex_attn_available, logging
-from .configuration_sdar import SDARConfig
-from .fused_linear_diffusion_cross_entropy import FusedLinearDiffusionCrossEntropyLoss
+from configuration_sdar import SDARConfig
+from fused_linear_diffusion_cross_entropy import FusedLinearDiffusionCrossEntropyLoss
 
 from flash_attn.ops.triton.layer_norm import rms_norm_fn as flash_rms_norm
 
@@ -77,10 +77,8 @@ def modify_padded_position_ids_2d(position_ids: torch.LongTensor) -> torch.LongT
     使用完全向量化的 PyTorch 操作修改一个 batch 的 packed position_ids。
     这个函数假设输入是一个 2D Tensor，形状为 (batch_size, sequence_length)。
     它会独立地处理 batch 中的每一行。
-
     Args:
         position_ids: 二维 PyTorch Tensor, shape (batch_size, sequence_length).
-
     Returns:
         修改后的 position_ids Tensor, shape (batch_size, sequence_length).
     """
@@ -108,7 +106,6 @@ def modify_padded_position_ids_2d(position_ids: torch.LongTensor) -> torch.LongT
 def calculate_token_nums(position_ids: torch.Tensor):
     """
     使用 PyTorch 高效计算一个批次中每个打包序列的长度。
-
     Args:
         position_ids (torch.Tensor): 一个 2D Tensor，形状为 (batch_size, sequence_length)。
                                      例如：tensor([[0,1,2,3,4,0,1,2,3,4,5,0,1,2,3,0,0,0]])
@@ -162,11 +159,9 @@ def forward_add_noise_packed(
 ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
     为一批打包（packed）序列的 token ID 添加噪声。
-
     此函数保留了为每个逻辑样本（在每个批次项内拼接）生成独立随机噪声率的逻辑。
     它会随机将一部分 token 的 ID 替换为 mask_id。
     这个过程会避开被 prompt_mask 标记的位置。
-
     Args:
         inputs_ids (torch.Tensor): 
             输入的 token ID 张量，形状为 (bsz, total_tokens)。
@@ -182,7 +177,6 @@ def forward_add_noise_packed(
             微小值，用于防止噪声率 t 恰好为 0，确保 p_mask > 0。
         max_tries (int): 
             为确保至少一个非 prompt token 被 mask，对每个批次项尝试的最大次数。
-
     Returns:
         Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
         - noisy_input_ids (torch.Tensor): 
@@ -290,13 +284,11 @@ def block_diff_mask(b, h, q_idx, kv_idx, block_size=None, n=None):
     - **Block Diagonal Mask (M_BD)**: Self-attention within noised blocks
     - **Offset Block Causal Mask (M_OBC)**: Cross-attention for conditional context
     - **Block Causal Mask (M_BC)**: Attention to update x0
-
     Args:
         b, h: Batch and head indices (ignored for mask logic).
         q_idx, kv_idx: Query and Key indices.
         seq_len: Total sequence length.
         block_size: Defines the block structure.
-
     Returns:
         A boolean attention mask.
     """
@@ -410,7 +402,6 @@ def rotate_half(x):
 
 def apply_rotary_pos_emb(q, k, cos, sin, position_ids=None, unsqueeze_dim=1):
     """Applies Rotary Position Embedding to the query and key tensors.
-
     Args:
         q (`torch.Tensor`): The query tensor.
         k (`torch.Tensor`): The key tensor.
@@ -970,7 +961,6 @@ class SDARModel(SDARPreTrainedModel):
         """
         Creates a causal 4D mask of shape `(batch_size, 1, query_length, key_value_length)` from a 2D mask of shape
         `(batch_size, key_value_length)`, or if the input `attention_mask` is already 4D, do nothing.
-
         Args:
             attention_mask (`torch.Tensor`):
                 A 2D attention mask of shape `(batch_size, key_value_length)` or a 4D attention mask of shape `(batch_size, 1, query_length, key_value_length)`.
@@ -1168,6 +1158,7 @@ class SDARForCausalLM(SDARPreTrainedModel, GenerationMixin):
         use_kl_estimator_k3: bool = True,
         return_entropy: bool = False,
         dynamic_threshold: Optional[float] = None,
+        loss_mean: bool = True,
         **kwargs: Unpack[KwargsForCausalLM],
     ) -> CausalLMOutputWithPast:
 
@@ -1235,19 +1226,6 @@ class SDARForCausalLM(SDARPreTrainedModel, GenerationMixin):
 
                 # 选出 logits — 保持原样
                 logits_p = logits[p_to_keep_real]                       # (N, V)
-                N = p_to_keep_real.sum().item()
-                total_response_tokens = (labels != -100).sum().item()
-                total_p_mask = p_mask.sum().item()
-                total_masked_indices = masked_indices.sum().item()
-                total_is_real = is_real_tensor.sum().item() if is_real_tensor.dim() > 0 else (1 if is_real_tensor.item() else 0)
-                # print(f"Batch stats:")
-                # print(f"  M (logits after logits_to_keep): {len(logits)}")
-                # print(f"  N (p_to_keep_real): {N}")
-                # print(f"  Response tokens (labels!=-100): {total_response_tokens}")
-                # print(f"  p_mask total: {total_p_mask}")
-                # print(f"  masked_indices total: {total_masked_indices}")
-                # print(f"  is_real count: {total_is_real}, batch_size: {labels.shape[0]}")
-                # print(f"  M/N ratio: {len(logits)/N if N > 0 else 0:.2f}, masked_indices/p_mask ratio: {total_masked_indices/total_p_mask if total_p_mask > 0 else 0:.2f}")
 
                 # log_softmax
                 log_probs_p = torch.nn.functional.log_softmax(logits_p, dim=-1)
@@ -1255,18 +1233,15 @@ class SDARForCausalLM(SDARPreTrainedModel, GenerationMixin):
                 # labels / logp — 保持原样
                 labels_p = labels[masked_indices][p_to_keep_real]        # (N,)
                 logp_p = log_probs_p.gather(dim=-1, index=labels_p.unsqueeze(-1)).squeeze(-1)
-                
-                # 过滤掉 token id 为 151645 和 151643 的位置，不参与 loss 计算
-                valid_token_mask = (labels_p != 151645) & (labels_p != 151643)
 
                 # entropy（可选）
                 if return_entropy:
                     with torch.no_grad():
                         entropy_p = -(log_probs_p.exp() * log_probs_p).sum(dim=-1)
-                        entropy = entropy_p[valid_token_mask].mean() if valid_token_mask.any() else torch.tensor(0.0, device=device)
+                        entropy = entropy_p.mean() if entropy_p.numel() > 0 else torch.tensor(0.0, device=device)
                         del entropy_p
 
-                # advantage — 保持原样
+                # advantage 处理
                 adv_tensor = adv.to(device) if torch.is_tensor(adv) else torch.tensor(adv, dtype=torch.float, device=device)
                 adv_expanded = adv_tensor.unsqueeze(1).expand_as(p_mask)
                 adv_p = adv_expanded[masked_indices][p_to_keep_real]
@@ -1277,42 +1252,38 @@ class SDARForCausalLM(SDARPreTrainedModel, GenerationMixin):
                 else:
                     logp_old_p = logp_p.detach()
                 
-                # 应用 valid_token_mask 过滤
-                logp_p = logp_p[valid_token_mask]
-                adv_p = adv_p[valid_token_mask]
-                logp_old_p = logp_old_p[valid_token_mask]
-
-                # dynamic_threshold（你原来写了说明但没用；这里不擅自加逻辑，完全不动）
-                _ = dynamic_threshold  # noqa: F841
-
                 # ratio/exp
                 ratio_p = (logp_p - logp_old_p).clamp(-10.0, 10.0).exp()
-                clipped = ratio_p.clamp(1 - ppo_eps, 1 + ppo_eps+0.08)
+                clipped = ratio_p.clamp(1 - ppo_eps, 1 + ppo_eps + 0.08) # for on-policy, clip higher is no need.
                 surrogate_p = torch.minimum(ratio_p * adv_p, clipped * adv_p)
-                # 输出离1最远的ratio值
-                # if not torch.allclose(ratio_p, torch.ones_like(ratio_p)):
-                furthest_value = ratio_p[torch.abs(ratio_p - 1).argmax()]
-                # print(f"Furthest ratio from 1: {furthest_value.item()}")
-                policy_loss = -surrogate_p.mean()
+
+                # Policy loss: use mean or sum based on loss_mean parameter
+                if loss_mean:
+                    policy_loss = -surrogate_p.mean()
+                else:
+                    policy_loss = -surrogate_p.sum()
 
                 # KL（可选）
                 kl_loss = torch.tensor(0.0, device=device)
                 if kl_beta > 0 and logp_ref_tok is not None:
                     logp_ref_p = logp_ref_tok.to(device)[masked_indices][p_to_keep_real]
-                    logp_ref_p = logp_ref_p[valid_token_mask]
                     kl_seq_p = logp_p - logp_ref_p
 
                     if use_kl_estimator_k3:
                         kl_seq_p = (-kl_seq_p).clamp(-10.0, 10.0).exp() - 1.0 + kl_seq_p
 
-                    kl_loss = kl_beta * kl_seq_p.mean()
+                    # KL loss: use mean or sum based on loss_mean parameter
+                    if loss_mean:
+                        kl_loss = kl_beta * kl_seq_p.mean()
+                    else:
+                        kl_loss = kl_beta * kl_seq_p.sum()
                     del logp_ref_p, kl_seq_p
 
                 loss = policy_loss + kl_loss
                 kl_loss_value = kl_loss.detach().clone()
 
                 # 清理
-                del logits, logits_p, log_probs_p, labels_p, valid_token_mask
+                del logits, logits_p, log_probs_p, labels_p
                 del is_real_tensor, p_mask_real, p_to_keep_real
                 del adv_tensor, adv_expanded, adv_p
                 del logp_p, logp_old_p, ratio_p, clipped, surrogate_p
