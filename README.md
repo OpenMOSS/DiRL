@@ -260,7 +260,7 @@ Join our WeChat group to discuss DLLM training and related topics:
 
 For issues or inquiries:
 
-- **Ying Zhu**, Shanghai Innovation Institute ([auraithm@gmail.com](mailto:auraithm@gmail.com))
+- **Ying Zhu**, Shanghai Innovation Institute ([auraithm@gmail.com](mailto:auraithm@gmail.com), WeChat 15961171029)
 
 
 ## 📖 Citation
