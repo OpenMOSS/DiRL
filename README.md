@@ -229,7 +229,7 @@ bash examples/example-grpo.sh
 ```
 For DAPO
 ```bash
-bash examples/example-grpo.sh
+bash examples/example-dapo.sh
 ```
 
 ## 📋 Roadmap
